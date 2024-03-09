@@ -1,8 +1,7 @@
 package me.jellysquid.mods.lithium.mixin.world.inline_height;
 
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.MutableWorldProperties;
@@ -32,7 +31,7 @@ public abstract class WorldMixin implements HeightLimitView {
             method = "<init>",
             at = @At("RETURN")
     )
-    private void initHeightCache(MutableWorldProperties properties, RegistryKey<?> registryRef, DynamicRegistryManager registryManager, RegistryEntry<?> dimensionEntry, Supplier<?> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates, CallbackInfo ci) {
+    private void initHeightCache(CallbackInfo ci) {
         this.height = this.getDimension().height();
         this.bottomY = this.getDimension().minY();
         this.topYInclusive = this.bottomY + this.height - 1;

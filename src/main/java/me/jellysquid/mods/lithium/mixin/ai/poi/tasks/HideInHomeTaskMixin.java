@@ -3,7 +3,7 @@ package me.jellysquid.mods.lithium.mixin.ai.poi.tasks;
 import me.jellysquid.mods.lithium.common.util.POIRegistryEntries;
 import me.jellysquid.mods.lithium.common.world.interests.iterator.SinglePointOfInterestTypeFilter;
 import net.minecraft.entity.ai.brain.task.HideInHomeTask;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.poi.PointOfInterestStorage;
@@ -20,29 +20,27 @@ public class HideInHomeTaskMixin {
 
     @Redirect(
             method = {
-                    "method_46979",
-                    "m_289100_"
+                    "run",
             },
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/poi/PointOfInterestStorage;getPosition(Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/minecraft/world/poi/PointOfInterestStorage$OccupationStatus;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/util/math/random/Random;)Ljava/util/Optional;"
             )
     )
-    private static Optional<BlockPos> useFasterPOILookup(PointOfInterestStorage pointOfInterestStorage, Predicate<RegistryEntry<PointOfInterestType>> typePredicate, Predicate<BlockPos> positionPredicate, PointOfInterestStorage.OccupationStatus occupationStatus, BlockPos pos, int radius, Random random) {
-        return pointOfInterestStorage.getPosition(new SinglePointOfInterestTypeFilter(POIRegistryEntries.HOME_ENTRY), positionPredicate, occupationStatus, pos, radius, random);
+    private Optional<BlockPos> useFasterPOILookup(PointOfInterestStorage instance, Predicate<RegistryEntry<PointOfInterestType>> typePredicate, Predicate<BlockPos> positionPredicate, PointOfInterestStorage.OccupationStatus occupationStatus, BlockPos pos, int radius, Random random) {
+        return instance.getPosition(new SinglePointOfInterestTypeFilter(POIRegistryEntries.HOME_ENTRY), positionPredicate, occupationStatus, pos, radius, random);
     }
 
     @Redirect(
             method = {
-                    "method_46978",
-                    "m_289098_"
+                    "shouldRun",
             },
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/poi/PointOfInterestStorage;getPosition(Ljava/util/function/Predicate;Ljava/util/function/Predicate;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/world/poi/PointOfInterestStorage$OccupationStatus;)Ljava/util/Optional;"
             )
     )
-    private static Optional<BlockPos> useFasterPOILookup(PointOfInterestStorage pointOfInterestStorage, Predicate<RegistryEntry<PointOfInterestType>> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int radius, PointOfInterestStorage.OccupationStatus occupationStatus) {
+    private Optional<BlockPos> useFasterPOILookup(PointOfInterestStorage pointOfInterestStorage, Predicate<RegistryEntry<PointOfInterestType>> typePredicate, Predicate<BlockPos> posPredicate, BlockPos pos, int radius, PointOfInterestStorage.OccupationStatus occupationStatus) {
         return pointOfInterestStorage.getPosition(new SinglePointOfInterestTypeFilter(POIRegistryEntries.HOME_ENTRY), posPredicate, pos, radius, occupationStatus);
     }
 

@@ -125,7 +125,7 @@ public abstract class ServerChunkManagerMixin {
      */
     private Chunk getChunkBlocking(int x, int z, ChunkStatus status, boolean create) {
         final long key = ChunkPos.toLong(x, z);
-        final int level = ChunkLevels.getLevelFromStatus(status);
+        final int level = 33 + ChunkStatus.getDistanceFromFull(status);
 
         ChunkHolder holder = this.getChunkHolder(key);
 
@@ -182,7 +182,7 @@ public abstract class ServerChunkManagerMixin {
 
         // Create a future to load the chunk if none exists
         if (loadFuture == null) {
-            if (ChunkLevels.getStatus(holder.getLevel()).isAtLeast(status)) {
+            if (ChunkHolder.getTargetStatusForLevel(holder.getLevel()).isAtLeast(status)) {
                 // Create a new future which upgrades the chunk from the previous status level to the desired one
                 CompletableFuture<Either<Chunk, ChunkHolder.Unloaded>> mergedFuture = this.threadedAnvilChunkStorage.getChunk(holder, status);
 

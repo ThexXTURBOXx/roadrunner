@@ -84,7 +84,7 @@ public abstract class ChunkSectionMixin implements BlockCountingSection, BlockLi
     }
 
     @Inject(
-            method = "readDataPacket",
+            method = "fromPacket",
             at = @At(value = "HEAD")
     )
     private void resetData(PacketByteBuf buf, CallbackInfo ci) {

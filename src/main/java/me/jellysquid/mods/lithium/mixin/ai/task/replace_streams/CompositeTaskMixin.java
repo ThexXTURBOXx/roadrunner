@@ -3,9 +3,9 @@ package me.jellysquid.mods.lithium.mixin.ai.task.replace_streams;
 import me.jellysquid.mods.lithium.common.ai.WeightedListIterable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.MemoryModuleState;
 import net.minecraft.entity.ai.brain.MemoryModuleType;
 import net.minecraft.entity.ai.brain.task.CompositeTask;
-import net.minecraft.entity.ai.brain.task.MultiTickTask;
 import net.minecraft.entity.ai.brain.task.Task;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.collection.WeightedList;
@@ -14,10 +14,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.Map;
 import java.util.Set;
 
 @Mixin(CompositeTask.class)
-public abstract class CompositeTaskMixin<E extends LivingEntity> implements Task<E> {
+public abstract class CompositeTaskMixin<E extends LivingEntity> extends Task<E> {
     @Shadow
     @Final
     private WeightedList<Task<? super E>> tasks;
@@ -26,8 +27,9 @@ public abstract class CompositeTaskMixin<E extends LivingEntity> implements Task
     @Final
     private Set<MemoryModuleType<?>> memoriesToForgetWhenStopped;
 
-    @Shadow
-    private MultiTickTask.Status status;
+    public CompositeTaskMixin(Map<MemoryModuleType<?>, MemoryModuleState> requiredMemoryState) {
+        super(requiredMemoryState);
+    }
 
     /**
      * @reason Replace stream code with traditional iteration
@@ -35,17 +37,11 @@ public abstract class CompositeTaskMixin<E extends LivingEntity> implements Task
      */
     @Override
     @Overwrite
-    public final void tick(ServerWorld world, E entity, long time) {
-        boolean hasOneTaskRunning = false;
+    public void keepRunning(ServerWorld world, E entity, long time) {
         for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
-            if (task.getStatus() == MultiTickTask.Status.RUNNING) {
+            if (task.getStatus() == Task.Status.RUNNING) {
                 task.tick(world, entity, time);
-                hasOneTaskRunning |= task.getStatus() == MultiTickTask.Status.RUNNING;
             }
-        }
-
-        if (!hasOneTaskRunning) {
-            this.stop(world, entity, time);
         }
     }
 
@@ -55,10 +51,9 @@ public abstract class CompositeTaskMixin<E extends LivingEntity> implements Task
      */
     @Override
     @Overwrite
-    public final void stop(ServerWorld world, E entity, long time) {
-        this.status = MultiTickTask.Status.STOPPED;
+    public void finishRunning(ServerWorld world, E entity, long time) {
         for (Task<? super E> task : WeightedListIterable.cast(this.tasks)) {
-            if (task.getStatus() == MultiTickTask.Status.RUNNING) {
+            if (task.getStatus() == Task.Status.RUNNING) {
                 task.stop(world, entity, time);
             }
         }

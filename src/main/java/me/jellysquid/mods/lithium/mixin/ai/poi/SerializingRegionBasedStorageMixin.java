@@ -8,7 +8,7 @@ import me.jellysquid.mods.lithium.common.util.Pos;
 import me.jellysquid.mods.lithium.common.util.collections.ListeningLong2ObjectOpenHashMap;
 import me.jellysquid.mods.lithium.common.world.interests.RegionBasedStorageSectionExtended;
 import net.minecraft.datafixer.DataFixTypes;
-import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.HeightLimitView;

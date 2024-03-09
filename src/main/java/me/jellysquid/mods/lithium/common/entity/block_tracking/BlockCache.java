@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.Reference2DoubleArrayMap;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.Box;
 
 public final class BlockCache {
