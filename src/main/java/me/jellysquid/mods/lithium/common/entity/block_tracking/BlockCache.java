@@ -1,11 +1,13 @@
 package me.jellysquid.mods.lithium.common.entity.block_tracking;
 
-import it.unimi.dsi.fastutil.objects.Reference2DoubleArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2DoubleMap;
 import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import net.minecraft.entity.Entity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.Box;
+import net.minecraftforge.fluids.FluidType;
 
 public final class BlockCache {
     // To avoid slowing down setblock operations, only start caching after 3 Seconds = 60 gameticks with N accesses per tick
@@ -24,7 +26,7 @@ public final class BlockCache {
     //0 if not suffocating. 1 if touching suffocating. -1 if not cached
     private byte cachedIsSuffocating;
     //Touched fluid's height IF fluid pushing is 0. Touched fluid height is 0 when not touching that fluid. Not in collection: No cached value (uninitialized OR fluid pushing is not 0)
-    private final Reference2DoubleArrayMap<TagKey<Fluid>> fluidType2FluidHeightMap;
+    private final Object2DoubleArrayMap<FluidType> fluidType2FluidHeightMap;
 
     //Future: maybe cache last failed movement vector
 
@@ -32,7 +34,7 @@ public final class BlockCache {
         this.tracker = null;
         this.trackedPos = null;
         this.initDelay = 0;
-        this.fluidType2FluidHeightMap = new Reference2DoubleArrayMap<>(2);
+        this.fluidType2FluidHeightMap = new Object2DoubleArrayMap<>(2);
     }
 
     public boolean isTracking() {
@@ -97,15 +99,23 @@ public final class BlockCache {
         this.canSkipBlockTouching = value;
     }
 
-    public double getStationaryFluidHeightOrDefault(TagKey<Fluid> fluid, double defaultValue) {
+    public double getStationaryFluidHeightOrDefault(FluidType fluid, double defaultValue) {
         if (this.isTracking()) {
             return this.fluidType2FluidHeightMap.getOrDefault(fluid, defaultValue);
         }
         return defaultValue;
     }
 
-    public void setCachedFluidHeight(TagKey<Fluid> fluid, double fluidHeight) {
+    public void setCachedFluidHeight(FluidType fluid, double fluidHeight) {
         this.fluidType2FluidHeightMap.put(fluid, fluidHeight);
+    }
+
+    public Object2DoubleMap<FluidType> getCachedFluidHeightMap() {
+        if(this.isTracking()) {
+            return this.fluidType2FluidHeightMap;
+        } else {
+            return null;
+        }
     }
 
     public byte getIsTouchingFireLava() {

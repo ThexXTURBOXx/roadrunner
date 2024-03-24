@@ -8,7 +8,6 @@ import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,9 +19,6 @@ import java.util.function.Supplier;
  */
 @Mixin(World.class)
 public abstract class WorldMixin implements HeightLimitView {
-    @Shadow
-    public abstract DimensionType getDimension();
-
     private int bottomY;
     private int height;
     private int topYInclusive;
@@ -31,9 +27,9 @@ public abstract class WorldMixin implements HeightLimitView {
             method = "<init>",
             at = @At("RETURN")
     )
-    private void initHeightCache(CallbackInfo ci) {
-        this.height = this.getDimension().height();
-        this.bottomY = this.getDimension().minY();
+    private void initHeightCache(MutableWorldProperties properties, RegistryKey registryRef, RegistryEntry<DimensionType> dimension, Supplier profiler, boolean isClient, boolean debugWorld, long seed, int maxChainedNeighborUpdates, CallbackInfo ci) {
+        this.height = dimension.value().height();
+        this.bottomY = dimension.value().minY();
         this.topYInclusive = this.bottomY + this.height - 1;
     }
 

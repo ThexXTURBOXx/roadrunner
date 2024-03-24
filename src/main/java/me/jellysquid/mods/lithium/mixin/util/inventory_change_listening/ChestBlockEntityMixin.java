@@ -6,7 +6,6 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.block.entity.LootableContainerBlockEntity;
 import net.minecraft.util.math.BlockPos;
-import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -18,14 +17,14 @@ public abstract class ChestBlockEntityMixin extends LootableContainerBlockEntity
         super(blockEntityType, blockPos, blockState);
     }
 
-    @SuppressWarnings("deprecation")
-    // @Intrinsic
+    /*@SuppressWarnings("deprecation")
+    @Intrinsic
     @Override
     public void setCachedState(BlockState state) {
         super.setCachedState(state);
-    }
+    }*/
 
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
+    // @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
     @Inject(method = "setCachedState(Lnet/minecraft/block/BlockState;)V", at = @At("RETURN"))
     private void emitRemovedOnSetCachedState(CallbackInfo ci) {
         //Handle switching double / single chest state

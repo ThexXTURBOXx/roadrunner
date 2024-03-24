@@ -8,10 +8,14 @@ import me.jellysquid.mods.lithium.common.block.BlockStateFlags;
 import me.jellysquid.mods.lithium.common.entity.FluidCachingEntity;
 import me.jellysquid.mods.lithium.common.util.Pos;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.tag.TagKey;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraftforge.common.extensions.IForgeEntity;
 import net.minecraftforge.fluids.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -19,13 +23,13 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+import javax.annotation.Nullable;
 import java.util.function.BiPredicate;
 
-@Mixin(Entity.class)
-public abstract class EntityMixin implements FluidCachingEntity {
+@Mixin(value = Entity.class, priority = 900)
+public abstract class EntityMixin implements FluidCachingEntity, IForgeEntity {
     @Shadow
     public abstract Box getBoundingBox();
 
@@ -34,6 +38,28 @@ public abstract class EntityMixin implements FluidCachingEntity {
 
     @Shadow
     protected Object2DoubleMap<FluidType> forgeFluidTypeHeight;
+
+    @Shadow
+    @Deprecated
+    protected Object2DoubleMap<TagKey<Fluid>> fluidHeight;
+
+    @Shadow
+    abstract void checkWaterState();
+
+    @Shadow
+    public abstract boolean isInFluidType();
+
+    @Shadow
+    @Nullable
+    public abstract Entity getVehicle();
+
+    @Shadow
+    public float fallDistance;
+
+    @Shadow
+    public abstract void extinguish();
+
+    private boolean radium$isInModdedFluid;
 
     /**
      * @author 2No2Name, embeddedt
@@ -47,7 +73,8 @@ public abstract class EntityMixin implements FluidCachingEntity {
                     shift = At.Shift.BEFORE
             ),
             cancellable = true,
-            locals = LocalCapture.CAPTURE_FAILHARD
+            locals = LocalCapture.CAPTURE_FAILHARD,
+            require = 0
     )
     public void tryShortcutFluidPushing(CallbackInfo ci, Box box, int x1, int x2, int y1, int y2, int z1, int z2, double zero) {
         int chunkX1 = x1 >> 4;
@@ -79,12 +106,53 @@ public abstract class EntityMixin implements FluidCachingEntity {
 
     /**
      * @author embeddedt
-     * @reason Skip running expensive logic from Forge if the entity is known not to be in a fluid.
+     * @reason Track when the entity is in a non-vanilla fluid type. This flag is used to skip looping through
+     * fluid types when entities are only in vanilla fluids.
      */
-    @Inject(method = "updateWaterState", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;checkWaterState()V", shift = At.Shift.AFTER), cancellable = true)
-    private void earlyExitIfTouchingNone(CallbackInfoReturnable<Boolean> cir) {
-        if(this.forgeFluidTypeHeight.isEmpty()) {
-            cir.setReturnValue(false);
+    @Inject(method = "setFluidTypeHeight", at = @At("RETURN"))
+    private void markInModdedFluid(FluidType type, double height, CallbackInfo ci) {
+        if(!type.isAir() && !type.isVanilla()) {
+            this.radium$isInModdedFluid = true;
+        }
+    }
+
+    /**
+     * @author embeddedt
+     * @reason Early-exit when not in a modded fluid, avoid streams & allocations for other calculations
+     */
+    @Overwrite
+    protected boolean updateWaterState() {
+        this.fluidHeight.clear();
+        this.forgeFluidTypeHeight.clear();
+        this.radium$isInModdedFluid = false;
+        this.checkWaterState();
+
+        if (this.radium$isInModdedFluid) {
+            this.handleModdedFluidBehaviors();
+        }
+
+        return this.isInFluidType();
+    }
+
+    private void handleModdedFluidBehaviors() {
+        if (!(this.getVehicle() instanceof BoatEntity)) {
+            float fallDistanceModifier = Float.MAX_VALUE;
+            boolean canExtinguish = false;
+
+            for(FluidType type : this.forgeFluidTypeHeight.keySet()) {
+                if(!type.isAir() && !type.isVanilla()) {
+                    fallDistanceModifier = Math.min(this.getFluidFallDistanceModifier(type), fallDistanceModifier);
+                    canExtinguish |= this.canFluidExtinguish(type);
+                }
+            }
+
+            if (fallDistanceModifier != Float.MAX_VALUE) {
+                this.fallDistance *= fallDistanceModifier;
+            }
+
+            if (canExtinguish) {
+                this.extinguish();
+            }
         }
     }
 
