@@ -127,15 +127,7 @@ public abstract class EntityMixin implements FluidCachingEntity, IForgeEntity {
         this.radium$isInModdedFluid = false;
         this.checkWaterState();
 
-        if (this.radium$isInModdedFluid) {
-            this.handleModdedFluidBehaviors();
-        }
-
-        return this.isInFluidType();
-    }
-
-    private void handleModdedFluidBehaviors() {
-        if (!(this.getVehicle() instanceof BoatEntity)) {
+        if (this.radium$isInModdedFluid && !(this.getVehicle() instanceof BoatEntity)) {
             float fallDistanceModifier = Float.MAX_VALUE;
             boolean canExtinguish = false;
 
@@ -154,6 +146,8 @@ public abstract class EntityMixin implements FluidCachingEntity, IForgeEntity {
                 this.extinguish();
             }
         }
+
+        return this.isInFluidType();
     }
 
     /**
