@@ -3,6 +3,8 @@ import net.fabricmc.loom.task.RemapJarTask
 plugins {
     id 'dev.architectury.loom' version '1.3-SNAPSHOT'
 
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+
     // Vineflower is a fork of the FernFlower decompiler which contains many enhancements and bug fixes, and generally
     // produces much better source code. The Minecraft sources can be decompiled using it with the
     // "genSourcesWithVineflower" task.
