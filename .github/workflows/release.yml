@@ -66,7 +66,7 @@ jobs:
           context: changelog
           workflow_id: release.yml
       - name: Build and Release with Gradle
-        run: ./gradlew build publish
+        run: ./gradlew -Pbuild.release=true build publish
         env:
           SAPS_TOKEN: ${{ secrets.SAPS_TOKEN }}
           BUILD_RELEASE: ${{ github.event.inputs.prerelease == 'false' }}
