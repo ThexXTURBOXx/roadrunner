@@ -10,4 +10,4 @@ pluginManagement {
 
 includeBuild "components/mixin-config-plugin"
 
-rootProject.name = "roadiumrunner"
+rootProject.name = "RoadRunner"

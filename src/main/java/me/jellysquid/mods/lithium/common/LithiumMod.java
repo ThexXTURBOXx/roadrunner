@@ -5,7 +5,7 @@ import net.minecraftforge.fml.common.Mod;
 
 @Mod(LithiumMod.MODID)
 public class LithiumMod {
-    public static final String MODID = "radium";
+    public static final String MODID = "roadrunner";
     public static LithiumConfig CONFIG;
 
     public LithiumMod() {

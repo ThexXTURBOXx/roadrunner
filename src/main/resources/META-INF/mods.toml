@@ -1,16 +1,17 @@
 modLoader = "javafml"
 loaderVersion = "*"
-issueTrackerURL = "https://github.com/Reforged-Hub/radium-upstream/issues"
+issueTrackerURL = "https://github.com/MaxNeedsSnacks/roadrunner/issues"
 license = "LGPL-3.0-only"
 
 [[mods]]
-modId = "radium"
+modId = "roadrunner"
 version = "${version}"
-displayName = "Radium"
-updateJSONURL = "https://api.modrinth.com/updates/radium/forge_updates.json"
+displayName = "RoadRunner"
 logoFile = "icon.png"
-description = "A Forge port of mod designed to improve the general performance of Minecraft without breaking things"
+description = '''
+An unofficial fork of the popular optimisation mod Lithium, made for the Forge mod loader.
+'''
 credits = "JellySquid, 2No2Name"
-authors = "dima_dencep, NanoLive"
-displayURL = "https://curseforge.com/minecraft/mc-mods/radium-reforged"
+authors = "embeddedt, dima_dencep, NanoLive"
+displayURL = "https://curseforge.com/minecraft/mc-mods/roadrunner"
 provides=["lithium"]

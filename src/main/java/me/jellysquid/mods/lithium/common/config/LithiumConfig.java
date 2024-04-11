@@ -23,7 +23,7 @@ public class LithiumConfig extends AbstractCaffeineConfigMixinPlugin {
 
         Option option = config.getOption("mixin.block.hopper.worldedit_compat");
         if (!option.isEnabled() && WorldEditCompat.WORLD_EDIT_PRESENT) {
-            option.addModOverride(true, "radium");
+            option.addModOverride(true, "roadrunner");
         }
 
         if (!LoadingModList.get().getErrors().isEmpty()) {
@@ -43,7 +43,7 @@ public class LithiumConfig extends AbstractCaffeineConfigMixinPlugin {
 
     @Override
     protected CaffeineConfig createConfig() {
-        CaffeineConfig.Builder builder = CaffeineConfig.builder("Radium")
+        CaffeineConfig.Builder builder = CaffeineConfig.builder("RoadRunner")
                 .withInfoUrl("https://github.com/jellysquid3/lithium-fabric/wiki/Configuration-File")
                 .withSettingsKey("lithium:options");
 

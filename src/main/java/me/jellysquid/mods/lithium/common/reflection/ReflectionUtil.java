@@ -15,8 +15,8 @@ public class ReflectionUtil {
             } catch (NoSuchMethodException e) {
                 clazz = clazz.getSuperclass();
             } catch (NoClassDefFoundError | RuntimeException error) {
-                Logger logger = LogManager.getLogger("Radium Class Analysis");
-                logger.warn("Radium Class Analysis Error: Class " + clazz.getName() + " cannot be analysed, because" +
+                Logger logger = LogManager.getLogger("RoadRunner Class Analysis");
+                logger.warn("RoadRunner Class Analysis Error: Class " + clazz.getName() + " cannot be analysed, because" +
                         " getting declared methods crashes with " + error.getClass().getSimpleName() + ": " + error.getMessage() +
                         ". This is usually caused by modded" +
                         " entities declaring methods that have a return type or parameter type that is annotated" +
@@ -27,7 +27,7 @@ public class ReflectionUtil {
                 return fallbackResult;
             } catch (Throwable e) {
                 final String crashedClass = clazz.getName();
-                CrashReport crashReport = CrashReport.create(e, "Radium Class Analysis");
+                CrashReport crashReport = CrashReport.create(e, "RoadRunner Class Analysis");
                 CrashReportSection crashReportSection = crashReport.addElement(e.getClass().toString() + " when getting declared methods.");
                 crashReportSection.add("Analyzed class", crashedClass);
                 crashReportSection.add("Analyzed method name", methodName);
